@@ -108,7 +108,7 @@ const AdminPanel = ({ token, loggedInUser, isSuperUser = false }) => {
         return () => window.clearTimeout(timeoutId);
     }, [message]);
 
-    const API_BASE = 'http://localhost:5000';
+    const API_BASE = import.meta.env.VITE_API_BASE || '';
     const selectedAdminVolunteer = volunteers.find((volunteer) => String(volunteer.volunteer_id) === String(adminFormData.volunteer_id || ''));
     const assetUrl = (path) => {
         if (!path) return '';
