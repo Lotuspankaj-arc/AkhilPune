@@ -1,0 +1,55 @@
+{
+  "name": "pcmc",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "concurrently -n VITE,SERVER -c blue,green \"vite --host\" \"node Server.js\"",
+    "client": "vite --host",
+    "server": "node Server.js",
+    "build": "vite build",
+    "lint": "oxlint",
+    "preview": "vite preview",
+    "import:pincodes": "node scripts/import_pincode_master.js"
+  },
+  "dependencies": {
+    "@tailwindcss/vite": "^4.3.2",
+    "bcrypt": "^6.0.0",
+    "cookie-parser": "^1.4.6",
+    "cors": "^2.8.5",
+    "dotenv": "^17.4.2",
+    "express": "^4.21.2",
+    "express-rate-limit": "^8.7.0",
+    "face-api.js": "^0.20.0",
+    "helmet": "^8.3.0",
+    "i18next": "^23.0.0",
+    "jpeg-js": "^0.4.4",
+    "jsonwebtoken": "^9.0.0",
+    "lucide-react": "^1.24.0",
+    "multer": "^2.0.1",
+    "mysql2": "^3.23.3",
+    "nodemailer": "^9.0.3",
+    "qrcode": "^1.5.4",
+    "razorpay": "^2.9.6",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7",
+    "react-i18next": "^13.0.0",
+    "react-router-dom": "^7.18.1",
+    "ssh2-sftp-client": "^12.1.1"
+  },
+  "overrides": {
+    "node-fetch": "^2.7.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.3.2",
+    "@types/react": "^19.2.17",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.3",
+    "autoprefixer": "^10.5.2",
+    "concurrently": "^9.2.4",
+    "oxlint": "^1.71.0",
+    "postcss": "^8.5.16",
+    "tailwindcss": "^4.3.2",
+    "vite": "^8.1.1"
+  }
+}

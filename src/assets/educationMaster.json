@@ -1,0 +1,46 @@
+[
+  {
+    "value": "B.A.",
+    "label": "B.A.",
+    "details": [
+      { "value": "General Arts", "label": "General Arts" },
+      { "value": "Art History", "label": "Art History" },
+      { "value": "Political Science", "label": "Political Science" }
+    ]
+  },
+  {
+    "value": "B.Com",
+    "label": "B.Com",
+    "details": [
+      { "value": "General", "label": "General" },
+      { "value": "Accounting", "label": "Accounting" },
+      { "value": "Banking", "label": "Banking" }
+    ]
+  },
+  {
+    "value": "B.Sc.",
+    "label": "B.Sc.",
+    "details": [
+      { "value": "Computer Science", "label": "Computer Science" },
+      { "value": "Physics", "label": "Physics" },
+      { "value": "Chemistry", "label": "Chemistry" }
+    ]
+  },
+  {
+    "value": "M.A.",
+    "label": "M.A.",
+    "details": [
+      { "value": "History", "label": "History" },
+      { "value": "Marathi", "label": "Marathi" },
+      { "value": "Economics", "label": "Economics" }
+    ]
+  },
+  {
+    "value": "M.Com",
+    "label": "M.Com",
+    "details": [
+      { "value": "Finance", "label": "Finance" },
+      { "value": "Advanced Accounting", "label": "Advanced Accounting" }
+    ]
+  }
+]

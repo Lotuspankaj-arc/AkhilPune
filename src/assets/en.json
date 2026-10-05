@@ -1,0 +1,579 @@
+{
+  "admin": {
+    "title": "Admin Control Panel",
+    "subtitle": "Manage users, events, and admins",
+    "tabs": {
+      "dashboard": "Dashboard",
+      "users": "Users",
+      "events": "Events",
+      "admins": "Admins",
+      "logs": "Activity Logs"
+    },
+    "stats": {
+      "totalUsers": "Total Users",
+      "totalAdmins": "Total Admins",
+      "activeEvents": "Active Events",
+      "recentLogs": "Recent Logs"
+    },
+    "headers": {
+      "userMgmt": "User Management",
+      "eventMgmt": "Event Management",
+      "adminMgmt": "Admin Management",
+      "activityLogs": "Activity Logs"
+    }
+  },
+  "form": {
+    "headings": {
+      "createProfile": "Create New Profile",
+      "createProfileSubtitle": "Please fill out all mandatory fields carefully.",
+      "editProfile": "Review & Edit Your Application",
+      "editProfileSubtitle": "Make necessary updates below and click 'Save Changes' at the bottom."
+    },
+    "section": {
+      "accountDetails": "Account Details",
+      "personalDetails": "Personal Details"
+    },
+    "instructions": {
+      "title": "Before filling the form, please read these instructions carefully:",
+      "englishOnly": "Use of English: The information in the entire form (name, address, education, etc.) should be filled in English characters only (English Only)",
+      "spellingOfName": "Spelling of name: Please write your full name, father's name and surname as it appears on your Aadhar card or educational documents. Do not use short forms (e.g. S. P. Patil).",
+      "addressPrecautions": "Precautions to be taken while writing the address: Write only the house number, building, street or nearby place (Landmark) in the address column. Do not rewrite the village, city, taluka or district in it, as separate options are given below for that.",
+      "accuracy": "Accuracy: Your information will be printed in the 'Booklet' as it is. Once the information is submitted, it cannot be changed, so check the spelling carefully and ensure the spelling.",
+      "mobileNumber": "Mobile number: Please write the mobile number in English digits only (123...) and give the same number that was used while making the payment.",
+      "photo": "Photo: Upload only clear and 'passport size' photos.",
+      "addressNote": "Note: Address should be entered Excluding - Village / City, Taluka / Tehsil, District, State, Pin Code. The list booklet (hard copy) will be sent by post to the address you provided. Please write your full address."
+    },
+    "labels": {
+      "email": "Email Address",
+      "password": "Password",
+      "confirmPassword": "Confirm Password",
+      "photo": "Passport Size Photo",
+      "marriageCategory": "Marriage Details",
+      "gender": "Select Profile Gender",
+      "firstName": "First Name (Bride/Groom)",
+      "middleName": "Middle Name (Father's Name)",
+      "lastName": "Last Name (Surname)",
+      "mobile": "Contact Mobile Number",
+      "whatsapp": "WhatsApp Contact Number",
+      "address": "Address Details",
+      "pincode": "6-Digit Indian Pincode",
+      "city": "City / Village",
+      "tehsil": "Tehsil / Taluka",
+      "district": "District",
+      "state": "State",
+      "height": "Height",
+      "complexion": "Complexion",
+      "education": "Educational Qualification",
+      "educationDetails": "Specialization / Stream",
+      "job": "Job / Business Details",
+      "income": "Annual Income",
+      "jobLocation": "Job / Business Location",
+      "mamekul": "Mamekul",
+      "dob": "Date of Birth (DD-MM-YYYY)",
+      "birthTime": "Birth Time",
+      "attendedEvent": "Have You Attended This Event?",
+      "yes": "Yes",
+      "no": "No",
+      "birthPlace": "Place of Birth",
+      "bloodGroup": "Blood Group",
+      "gotra": "Kul / Gotra",
+      "zodiac": "Zodiac / Rashi",
+      "gan": "Gan",
+      "nadi": "Nadi",
+      "charan": "Charan",
+      "nakshatra": "Nakshatra",
+      "expectations": "Select up to 5 Partner Expectations",
+      "customExpectation": "Other Specific Expectations",
+      "agreement": "Consent Declaration",
+      "agreementText": "The above information may be used / publish online for arranging the marriage of my ward. The above information is true & correct to the best of my knowledge & belief. The Akhil Pune Bhavsar Samaj will not be held responsible for the correctness of the information. In case of marriage / engagement of my ward, I agree to inform the Akhil Pune Bhavsar Samaj of the same.",
+      "saveChanges": "Save Profile Changes",
+      "submit": "Submit Application Form"
+    },
+    "placeholder": {
+      "address": "Flat/House No., Street Name, Colony / Peth, Landmark...",
+      "job": "Job Title, Designation, Company Name or Nature of Business"
+    },
+    "genderOption": {
+      "bride": "Bride / Female",
+      "groom": "Groom / Male"
+    },
+    "marriageOptions": {
+      "first": "First Marriage",
+      "remarriage": "Re-Marriage"
+    },
+    "timePhases": {
+      "morning": "Morning",
+      "afternoon": "Afternoon",
+      "evening": "Evening",
+      "night": "Night",
+      "legend": "Morning / Afternoon / Evening / Night",
+      "hint": "Just type the birth time, the phase is detected automatically",
+      "options": [
+        { "value": "morning", "label": "सकाळ / Morning" },
+        { "value": "afternoon", "label": "दुपार / Afternoon" },
+        { "value": "evening", "label": "संध्याकाळ / Evening" },
+        { "value": "night", "label": "रात्र / Night" }
+      ]
+    },
+    "options": {
+      "complexion": {
+        "fair": "Fair",
+        "wheatish": "Wheatish",
+        "dark": "Dark"
+      }
+    },
+    "validation": {
+      "expectationsLimit": "Please select a maximum of 5 key expectations only."
+    }
+  },
+  "metadata": {
+    "bloodGroups": [
+      {
+        "value": "A+",
+        "label": "A positive (A+)"
+      },
+      {
+        "value": "A-",
+        "label": "A negative (A-)"
+      },
+      {
+        "value": "B+",
+        "label": "B positive (B+)"
+      },
+      {
+        "value": "B-",
+        "label": "B negative (B-)"
+      },
+      {
+        "value": "O+",
+        "label": "O positive (O+)"
+      },
+      {
+        "value": "O-",
+        "label": "O negative (O-)"
+      },
+      {
+        "value": "AB+",
+        "label": "AB positive (AB+)"
+      },
+      {
+        "value": "AB-",
+        "label": "AB negative (AB-)"
+      }
+    ],
+    "gan": [
+      {
+        "value": "DevGan",
+        "label": "DevGan"
+      },
+      {
+        "value": "RakshasGan",
+        "label": "RakshasGan"
+      },
+      {
+        "value": "ManushyaGan",
+        "label": "ManushyaGan"
+      }
+    ],
+    "nadi": [
+      {
+        "value": "Adya",
+        "label": "Adya Nadi"
+      },
+      {
+        "value": "Madhya",
+        "label": "Madhya Nadi"
+      },
+      {
+        "value": "Antya",
+        "label": "Antya Nadi"
+      }
+    ],
+    "zodiac": [
+      {
+        "value": "Aries",
+        "label": "Aries"
+      },
+      {
+        "value": "Taurus",
+        "label": "Taurus"
+      },
+      {
+        "value": "Gemini",
+        "label": "Gemini"
+      },
+      {
+        "value": "Cancer",
+        "label": "Cancer"
+      },
+      {
+        "value": "Leo",
+        "label": "Leo"
+      },
+      {
+        "value": "Virgo",
+        "label": "Virgo"
+      },
+      {
+        "value": "Libra",
+        "label": "Libra"
+      },
+      {
+        "value": "Scorpio",
+        "label": "Scorpio"
+      },
+      {
+        "value": "Sagittarius",
+        "label": "Sagittarius"
+      },
+      {
+        "value": "Capricorn",
+        "label": "Capricorn"
+      },
+      {
+        "value": "Aquarius",
+        "label": "Aquarius"
+      },
+      {
+        "value": "Pisces",
+        "label": "Pisces"
+      }
+    ],
+    "nakshatra": [
+      {
+        "value": "Ashwini",
+        "label": "Ashwini"
+      },
+      {
+        "value": "Bharani",
+        "label": "Bharani"
+      },
+      {
+        "value": "Krittika",
+        "label": "Krittika"
+      },
+      {
+        "value": "Rohini",
+        "label": "Rohini"
+      },
+      {
+        "value": "Mrigashīrsha",
+        "label": "Mrigashīrsha"
+      },
+      {
+        "value": "Ārdrā",
+        "label": "Ārdrā"
+      },
+      {
+        "value": "Punarvasu",
+        "label": "Punarvasu"
+      },
+      {
+        "value": "Pushya",
+        "label": "Pushya"
+      },
+      {
+        "value": "Āshleshā",
+        "label": "Āshleshā"
+      },
+      {
+        "value": "Maghā",
+        "label": "Maghā"
+      },
+      {
+        "value": "Pūrva Phalgunī",
+        "label": "Pūrva Phalgunī"
+      },
+      {
+        "value": "Uttara Phalgunī",
+        "label": "Uttara Phalgunī"
+      },
+      {
+        "value": "Hasta",
+        "label": "Hasta"
+      },
+      {
+        "value": "Chitra",
+        "label": "Chitra"
+      },
+      {
+        "value": "Svātī",
+        "label": "Svātī"
+      },
+      {
+        "value": "Viśākhā",
+        "label": "Viśākhā"
+      },
+      {
+        "value": "Anurādhā",
+        "label": "Anurādhā"
+      },
+      {
+        "value": "Jyeshtha",
+        "label": "Jyeshtha"
+      },
+      {
+        "value": "Mula",
+        "label": "Mula"
+      },
+      {
+        "value": "Pūrva Āshādhā",
+        "label": "Pūrva Āshādhā"
+      },
+      {
+        "value": "Uttara Āṣāḍhā",
+        "label": "Uttara Āṣāḍhā"
+      },
+      {
+        "value": "Śrāvaṇa",
+        "label": "Śrāvaṇa"
+      },
+      {
+        "value": "Dhanishta",
+        "label": "Dhanishta"
+      },
+      {
+        "value": "Shatabhisha",
+        "label": "Shatabhisha"
+      },
+      {
+        "value": "Pūrva Bhādrapadā",
+        "label": "Pūrva Bhādrapadā"
+      },
+      {
+        "value": "Uttara Bhādrapadā",
+        "label": "Uttara Bhādrapadā"
+      },
+      {
+        "value": "Revati",
+        "label": "Revati"
+      },
+      {
+        "value": "Abhijit",
+        "label": "Abhijit"
+      }
+    ],
+    "kul": [
+      {
+        "value": "Agasti",
+        "label": "Agasti"
+      },
+      {
+        "value": "Ambrushi",
+        "label": "Ambrushi"
+      },
+      {
+        "value": "Athray",
+        "label": "Athray"
+      },
+      {
+        "value": "Atri",
+        "label": "Atri"
+      },
+      {
+        "value": "Bagdad Labhya",
+        "label": "Bagdad Labhya"
+      },
+      {
+        "value": "Bakpralabtha",
+        "label": "Bakpralabtha"
+      },
+      {
+        "value": "Barghav",
+        "label": "Barghav"
+      },
+      {
+        "value": "Bhagdalabdha",
+        "label": "Bhagdalabdha"
+      },
+      {
+        "value": "Bhagdalabhya",
+        "label": "Bhagdalabhya"
+      },
+      {
+        "value": "Bhardwaj",
+        "label": "Bhardwaj"
+      },
+      {
+        "value": "Bhargav",
+        "label": "Bhargav"
+      },
+      {
+        "value": "Bhuvan",
+        "label": "Bhuvan"
+      },
+      {
+        "value": "Bindu",
+        "label": "Bindu"
+      },
+      {
+        "value": "Bindulas",
+        "label": "Bindulas"
+      },
+      {
+        "value": "Bindusar",
+        "label": "Bindusar"
+      },
+      {
+        "value": "Chavan",
+        "label": "Chavan"
+      },
+      {
+        "value": "Durvas",
+        "label": "Durvas"
+      },
+      {
+        "value": "Gangodaki",
+        "label": "Gangodaki"
+      },
+      {
+        "value": "Gangodhar",
+        "label": "Gangodhar"
+      },
+      {
+        "value": "Garg",
+        "label": "Garg"
+      },
+      {
+        "value": "Gargya",
+        "label": "Gargya"
+      },
+      {
+        "value": "Gautam",
+        "label": "Gautam"
+      },
+      {
+        "value": "Gomyat",
+        "label": "Gomyat"
+      },
+      {
+        "value": "Gopan puru",
+        "label": "Gopan puru"
+      },
+      {
+        "value": "Gopmanya",
+        "label": "Gopmanya"
+      },
+      {
+        "value": "Jaimini",
+        "label": "Jaimini"
+      },
+      {
+        "value": "Jaldhar",
+        "label": "Jaldhar"
+      },
+      {
+        "value": "Jamadgni",
+        "label": "Jamadgni"
+      },
+      {
+        "value": "Kapil",
+        "label": "Kapil"
+      },
+      {
+        "value": "Kashyap",
+        "label": "Kashyap"
+      },
+      {
+        "value": "Kaundinya",
+        "label": "Kaundinya"
+      },
+      {
+        "value": "Kaushik",
+        "label": "Kaushik"
+      },
+      {
+        "value": "Kundan",
+        "label": "Kundan"
+      },
+      {
+        "value": "Kuntin",
+        "label": "Kuntin"
+      },
+      {
+        "value": "Lavan",
+        "label": "Lavan"
+      },
+      {
+        "value": "Markandya",
+        "label": "Markandya"
+      },
+      {
+        "value": "Poulatsya",
+        "label": "Poulatsya"
+      },
+      {
+        "value": "Pulashya",
+        "label": "Pulashya"
+      },
+      {
+        "value": "Rajbhoj",
+        "label": "Rajbhoj"
+      },
+      {
+        "value": "Sankhyayan",
+        "label": "Sankhyayan"
+      },
+      {
+        "value": "Santan Joshi",
+        "label": "Santan Joshi"
+      },
+      {
+        "value": "Saras Atri",
+        "label": "Saras Atri"
+      },
+      {
+        "value": "Shakhayan",
+        "label": "Shakhayan"
+      },
+      {
+        "value": "Shandilya",
+        "label": "Shandilya"
+      },
+      {
+        "value": "Shantarushi",
+        "label": "Shantarushi"
+      },
+      {
+        "value": "Shonak",
+        "label": "Shonak"
+      },
+      {
+        "value": "Shrungi",
+        "label": "Shrungi"
+      },
+      {
+        "value": "Shrungrushi",
+        "label": "Shrungrushi"
+      },
+      {
+        "value": "Sukracharya",
+        "label": "Sukracharya"
+      },
+      {
+        "value": "Uddalak",
+        "label": "Uddalak"
+      },
+      {
+        "value": "Vaishampayan",
+        "label": "Vaishampayan"
+      },
+      {
+        "value": "Valmiki",
+        "label": "Valmiki"
+      },
+      {
+        "value": "Vashishtya",
+        "label": "Vashishtya"
+      },
+      {
+        "value": "Vaman",
+        "label": "Vaman"
+      },
+      {
+        "value": "Shuklahrushi",
+        "label": "Shuklahrushi"
+      }
+    ]
+  }
+}

@@ -1,0 +1,417 @@
+import express from 'express';
+import mysql from 'mysql2';
+import cors from 'cors';
+import multer from 'multer';
+import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
+import cookieParser from 'cookie-parser';
+import path from 'path'; // Added for path resolution
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const app = express();
+
+// Enable CORS with credentials for httpOnly refresh cookie support
+app.use(cors({ origin: true, credentials: true }));
+app.use(express.json());
+app.use(cookieParser());
+
+// Serve the 'uploads' folder so images can be accessed from mobile via browser
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+// Set up Multer
+const upload = multer({ dest: 'uploads/' });
+
+// Database Connection
+const db = mysql.createConnection({
+    host: 'localhost',
+    user: 'root',
+    password: 'Winter@12312',
+    database: 'akhil_pune_bhavsar'
+});
+
+let candidateIdColumn = 'id';
+let candidateFieldSet = new Set();
+let roleIdColumn = 'id';
+
+const candidateCompatColumns = [
+    ['email', 'VARCHAR(255) NULL'],
+    ['password', 'VARCHAR(255) NULL'],
+    ['gender', 'VARCHAR(20) NULL'],
+    ['marriage_category', 'VARCHAR(50) NULL'],
+    ['first_name', 'VARCHAR(100) NULL'],
+    ['middle_name', 'VARCHAR(100) NULL'],
+    ['last_name', 'VARCHAR(100) NULL'],
+    ['address', 'TEXT NULL'],
+    ['pincode', 'VARCHAR(10) NULL'],
+    ['city', 'VARCHAR(100) NULL'],
+    ['tehsil', 'VARCHAR(100) NULL'],
+    ['district', 'VARCHAR(100) NULL'],
+    ['state', 'VARCHAR(100) NULL'],
+    ['mobile', 'VARCHAR(20) NULL'],
+    ['whatsapp', 'VARCHAR(20) NULL'],
+    ['height', 'VARCHAR(20) NULL'],
+    ['complexion', 'VARCHAR(50) NULL'],
+    ['education', 'VARCHAR(255) NULL'],
+    ['education_details', 'TEXT NULL'],
+    ['job', 'VARCHAR(255) NULL'],
+    ['income', 'VARCHAR(50) NULL'],
+    ['job_location', 'VARCHAR(255) NULL'],
+    ['mamekul', 'VARCHAR(100) NULL'],
+    ['dob', 'DATE NULL'],
+    ['birth_time', 'VARCHAR(20) NULL'],
+    ['birth_place', 'VARCHAR(255) NULL'],
+    ['blood_group', 'VARCHAR(20) NULL'],
+    ['gotra', 'VARCHAR(100) NULL'],
+    ['zodiac', 'VARCHAR(50) NULL'],
+    ['gan', 'VARCHAR(50) NULL'],
+    ['nadi', 'VARCHAR(50) NULL'],
+    ['charan', 'VARCHAR(50) NULL'],
+    ['nakshatra', 'VARCHAR(100) NULL'],
+    ['expectations', 'TEXT NULL'],
+    ['photo_path', 'VARCHAR(255) NULL'],
+    ['is_active', 'BOOLEAN DEFAULT TRUE'],
+    ['is_admin', 'BOOLEAN DEFAULT FALSE'],
+    ['created_at', 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP']
+];
+
+async function ensureCandidatesCompatibility() {
+    const dbp = db.promise();
+    const [columns] = await dbp.query('SHOW COLUMNS FROM candidates');
+    const fieldSet = new Set(columns.map((col) => col.Field));
+    candidateFieldSet = fieldSet;
+
+    if (!fieldSet.has('id') && fieldSet.has('batch_id')) {
+        await dbp.query('ALTER TABLE candidates ADD COLUMN id INT NULL');
+        await dbp.query('UPDATE candidates SET id = batch_id WHERE id IS NULL');
+        try { await dbp.query('CREATE UNIQUE INDEX ux_candidates_id ON candidates(id)'); } catch (e) { }
+        fieldSet.add('id');
+        candidateFieldSet = fieldSet;
+    }
+
+    if (fieldSet.has('id')) {
+        candidateIdColumn = 'id';
+    } else if (fieldSet.has('batch_id')) {
+        candidateIdColumn = 'batch_id';
+    }
+
+    for (const [columnName, definition] of candidateCompatColumns) {
+        if (!fieldSet.has(columnName)) {
+            await dbp.query(`ALTER TABLE candidates ADD COLUMN ${columnName} ${definition}`);
+        }
+    }
+}
+
+async function ensureAdminCompatibility() {
+    const dbp = db.promise();
+
+    const [roleColumns] = await dbp.query('SHOW COLUMNS FROM roles');
+    const roleFieldSet = new Set(roleColumns.map((col) => col.Field));
+
+    if (roleFieldSet.has('id')) {
+        roleIdColumn = 'id';
+    } else if (roleFieldSet.has('role_id')) {
+        roleIdColumn = 'role_id';
+        await dbp.query('ALTER TABLE roles ADD COLUMN id INT NULL');
+        await dbp.query('UPDATE roles SET id = role_id WHERE id IS NULL');
+        try { await dbp.query('CREATE UNIQUE INDEX ux_roles_id ON roles(id)'); } catch (e) { }
+    }
+
+    await dbp.query(`
+        CREATE TABLE IF NOT EXISTS admins (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            user_id INT NOT NULL,
+            role_id INT NOT NULL,
+            created_by INT NULL,
+            is_active BOOLEAN DEFAULT TRUE,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+        )
+    `);
+
+    for (const roleName of ['super_user', 'admin', 'user']) {
+        await dbp.query(
+            'INSERT INTO roles (role_name) SELECT ? WHERE NOT EXISTS (SELECT 1 FROM roles WHERE role_name = ?)',
+            [roleName, roleName]
+        );
+    }
+
+    if (roleIdColumn === 'role_id') {
+        await dbp.query('UPDATE roles SET id = role_id WHERE id IS NULL');
+    }
+}
+
+function normalizeDobForDb(value) {
+    if (!value) return null;
+    if (/^\d{4}-\d{2}-\d{2}$/.test(value)) return value;
+
+    const match = String(value).match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+    if (!match) return null;
+
+    const day = Number(match[1]);
+    const month = Number(match[2]);
+    const year = Number(match[3]);
+    const candidate = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+
+    const parsed = new Date(candidate);
+    if (Number.isNaN(parsed.getTime())) return null;
+    if (parsed.getUTCFullYear() !== year || parsed.getUTCMonth() + 1 !== month || parsed.getUTCDate() !== day) {
+        return null;
+    }
+
+    return candidate;
+}
+
+function normalizeBloodGroup(value) {
+    if (!value) return value;
+    const raw = String(value).trim();
+
+    const direct = raw.match(/(AB|A|B|O)\s*([+-])/i);
+    if (direct) return `${direct[1].toUpperCase()}${direct[2]}`;
+
+    const compact = raw.replace(/\s+/g, '').toUpperCase();
+    if (['A+', 'A-', 'B+', 'B-', 'O+', 'O-', 'AB+', 'AB-'].includes(compact)) return compact;
+
+    return null;
+}
+
+db.connect((err) => {
+    if (err) throw err;
+    console.log('Connected to MySQL Database: akhil_pune_bhavsar');
+    ensureCandidatesCompatibility()
+        .then(() => ensureAdminCompatibility())
+        .then(() => console.log(`Candidates compatibility ready (pk: ${candidateIdColumn}), roles pk: ${roleIdColumn}`))
+        .catch((compatErr) => console.error('Candidates compatibility setup failed:', compatErr.message));
+});
+
+// API Routes
+app.post('/api/register', upload.single('photo'), async (req, res) => {
+    try {
+        const {
+            email, password, marriageCategory, gender,
+            firstName, middleName, lastName,
+            address, pincode, city, tehsil, district, state,
+            mobile, whatsapp, height, complexion,
+            education, educationDetails, job, income, jobLocation,
+            mamekul, dob, birthTime, birthPlace,
+            bloodGroup, gotra, zodiac, gan, nadi, charan, nakshatra,
+            expectations
+        } = req.body;
+
+        const dobForDb = normalizeDobForDb(dob);
+        if (dob && !dobForDb) {
+            return res.status(400).json({ error: 'Invalid Date of Birth. Please use DD/MM/YYYY.' });
+        }
+
+        const photoPath = req.file ? req.file.path : null;
+        const normalizedBloodGroup = normalizeBloodGroup(bloodGroup);
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        let sql;
+        let values;
+
+        if (candidateFieldSet.has('address_line')) {
+            sql = `INSERT INTO candidates (
+                email, password, gender, marriage_category, first_name, middle_name, last_name,
+                address, pincode, city, tehsil, district, state, mobile, whatsapp,
+                height, complexion, education, education_details, job, income, job_location,
+                mamekul, dob, birth_time, birth_place, blood_group, gotra, zodiac, gan, nadi, charan, nakshatra,
+                expectations, photo_path,
+                marriage_type, address_line, city_village, mobile_number, whatsapp_number, birth_date,
+                education_qualification, job_business_title, annual_income, job_business_location
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+
+            values = [
+                email, hashedPassword, gender, marriageCategory, firstName, middleName, lastName,
+                address, pincode, city, tehsil, district, state, mobile, whatsapp,
+                height, complexion, education, educationDetails, job, income, jobLocation,
+                mamekul, dobForDb, birthTime, birthPlace, normalizedBloodGroup, gotra, zodiac, gan, nadi, charan, nakshatra,
+                expectations, photoPath,
+                marriageCategory, address, city, mobile, whatsapp, dobForDb,
+                education, job, income, jobLocation
+            ];
+        } else {
+            sql = `INSERT INTO candidates (
+                email, password, gender, marriage_category, first_name, middle_name, last_name, 
+                address, pincode, city, tehsil, district, state, mobile, whatsapp, 
+                height, complexion, education, education_details, job, income, job_location, 
+                mamekul, dob, birth_time, birth_place, blood_group, gotra, zodiac, gan, nadi, charan, nakshatra, 
+                expectations, photo_path
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+
+            values = [
+                email, hashedPassword, gender, marriageCategory, firstName, middleName, lastName,
+                address, pincode, city, tehsil, district, state, mobile, whatsapp,
+                height, complexion, education, educationDetails, job, income, jobLocation,
+                mamekul, dobForDb, birthTime, birthPlace, normalizedBloodGroup, gotra, zodiac, gan, nadi, charan, nakshatra,
+                expectations, photoPath
+            ];
+        }
+
+        db.query(sql, values, (err, result) => {
+            if (err) {
+                console.error("Database Error:", err.message);
+                return res.status(500).json({ error: 'Database error', details: err.message });
+            }
+
+            // Fetch and return the newly created user (without password)
+            const newId = result.insertId;
+            db.query(`SELECT * FROM candidates WHERE ${candidateIdColumn} = ?`, [newId], (err2, rows) => {
+                if (err2) {
+                    console.error('Fetch after insert failed:', err2.message);
+                    return res.status(201).json({ message: 'Candidate Registered Successfully!' });
+                }
+                const user = rows[0];
+                if (user && !user.id && user.batch_id) user.id = user.batch_id;
+                if (user) delete user.password;
+                if (user && user.dob) user.dob = new Date(user.dob).toISOString().split('T')[0];
+                // Issue access & refresh tokens
+                const accessToken = jwt.sign({ id: user.id, email: user.email }, process.env.JWT_SECRET || 'dev_secret', { expiresIn: '15m' });
+                const refreshToken = jwt.sign({ id: user.id, email: user.email }, process.env.REFRESH_SECRET || 'dev_refresh', { expiresIn: '7d' });
+                res.cookie('refreshToken', refreshToken, { httpOnly: true, secure: false, sameSite: 'lax', path: '/' });
+                res.status(201).json({ message: 'Candidate Registered Successfully!', user, accessToken });
+            });
+        });
+    } catch (error) {
+        console.error("Server Error:", error);
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
+// Refresh access token using httpOnly refresh cookie
+app.post('/auth/refresh', (req, res) => {
+    const token = req.cookies?.refreshToken;
+    if (!token) return res.status(401).json({ error: 'No refresh token' });
+    try {
+        const payload = jwt.verify(token, process.env.REFRESH_SECRET || 'dev_refresh');
+        const accessToken = jwt.sign({ id: payload.id, email: payload.email }, process.env.JWT_SECRET || 'dev_secret', { expiresIn: '15m' });
+        const newRefresh = jwt.sign({ id: payload.id, email: payload.email }, process.env.REFRESH_SECRET || 'dev_refresh', { expiresIn: '7d' });
+        res.cookie('refreshToken', newRefresh, { httpOnly: true, secure: false, sameSite: 'lax', path: '/' });
+        res.json({ accessToken });
+    } catch (e) {
+        return res.status(401).json({ error: 'Invalid refresh token' });
+    }
+});
+
+// Logout: clear refresh cookie
+app.post('/auth/logout', (req, res) => {
+    res.clearCookie('refreshToken', { path: '/' });
+    res.json({ message: 'Logged out' });
+});
+
+app.get('/api/pincode/:pincode', async (req, res) => {
+    const { pincode } = req.params;
+    if (!/^[0-9]{6}$/.test(pincode)) {
+        return res.status(400).json({ error: 'Invalid pincode' });
+    }
+
+    try {
+        const apiRes = await fetch(`https://api.postalpincode.in/pincode/${pincode}`);
+        const result = await apiRes.json();
+        const office = result?.[0]?.PostOffice?.[0];
+        if (!office || result[0]?.Status !== 'Success') {
+            return res.status(404).json({ error: 'Pincode not found' });
+        }
+
+        res.json({
+            city: office.District || '',
+            tehsil: office.Taluk || office.Division || '',
+            district: office.District || '',
+            state: office.State || ''
+        });
+    } catch (error) {
+        console.error('Pincode lookup failed:', error);
+        res.status(500).json({ error: 'Unable to fetch pincode details' });
+    }
+});
+
+app.post('/api/login', async (req, res) => {
+    const { email, password } = req.body;
+    db.query('SELECT * FROM candidates WHERE email = ?', [email], async (err, results) => {
+        if (err) return res.status(500).json({ error: 'Database error' });
+        if (results.length === 0) return res.status(401).json({ error: 'User not found.' });
+
+        const user = results[0];
+        if (!user.id && user.batch_id) user.id = user.batch_id;
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) return res.status(401).json({ error: 'Invalid password.' });
+
+        delete user.password;
+        if (user.dob) user.dob = new Date(user.dob).toISOString().split('T')[0];
+            // Issue tokens and set refresh cookie
+            const accessToken = jwt.sign({ id: user.id, email: user.email }, process.env.JWT_SECRET || 'dev_secret', { expiresIn: '15m' });
+            const refreshToken = jwt.sign({ id: user.id, email: user.email }, process.env.REFRESH_SECRET || 'dev_refresh', { expiresIn: '7d' });
+            res.cookie('refreshToken', refreshToken, { httpOnly: true, secure: false, sameSite: 'lax', path: '/' });
+            res.status(200).json({ message: 'Login successful!', user, accessToken });
+    });
+});
+
+app.put('/api/update/:id', upload.single('photo'), async (req, res) => {
+    try {
+        const userId = req.params.id;
+        // Verify Authorization header (Bearer <token>)
+        const auth = req.headers.authorization;
+        if (!auth || !auth.startsWith('Bearer ')) return res.status(401).json({ error: 'Missing access token' });
+        const token = auth.split(' ')[1];
+        try {
+            const payload = jwt.verify(token, process.env.JWT_SECRET || 'dev_secret');
+            if (String(payload.id) !== String(userId)) return res.status(403).json({ error: 'Not allowed' });
+        } catch (e) {
+            return res.status(401).json({ error: 'Invalid or expired token' });
+        }
+        const incoming = req.body || {};
+        if (Object.prototype.hasOwnProperty.call(incoming, 'dob')) {
+            const dobForDb = normalizeDobForDb(incoming.dob);
+            if (incoming.dob && !dobForDb) {
+                return res.status(400).json({ error: 'Invalid Date of Birth. Please use DD/MM/YYYY.' });
+            }
+            incoming.dob = dobForDb;
+        }
+        if (Object.prototype.hasOwnProperty.call(incoming, 'bloodGroup')) {
+            incoming.bloodGroup = normalizeBloodGroup(incoming.bloodGroup);
+        }
+        const fieldMap = {
+            gender: 'gender', marriageCategory: 'marriage_category', firstName: 'first_name', middleName: 'middle_name', lastName: 'last_name',
+            address: 'address', pincode: 'pincode', city: 'city', tehsil: 'tehsil', district: 'district', state: 'state', mobile: 'mobile', whatsapp: 'whatsapp',
+            height: 'height', complexion: 'complexion', education: 'education', educationDetails: 'education_details', job: 'job', income: 'income', jobLocation: 'job_location',
+            mamekul: 'mamekul', dob: 'dob', birthTime: 'birth_time', birthPlace: 'birth_place', bloodGroup: 'blood_group', gotra: 'gotra', zodiac: 'zodiac', gan: 'gan', nadi: 'nadi', charan: 'charan', nakshatra: 'nakshatra',
+            expectations: 'expectations'
+        };
+
+        const setParts = [];
+        const values = [];
+
+        for (const [key, col] of Object.entries(fieldMap)) {
+            if (Object.prototype.hasOwnProperty.call(incoming, key)) {
+                setParts.push(`${col}=?`);
+                values.push(incoming[key]);
+            }
+        }
+
+        if (req.file) {
+            setParts.push('photo_path=?');
+            values.push(req.file.path);
+        }
+
+        if (setParts.length === 0) {
+            return res.status(400).json({ error: 'No updatable fields provided' });
+        }
+
+        const sql = `UPDATE candidates SET ${setParts.join(', ')} WHERE ${candidateIdColumn}=?`;
+        values.push(userId);
+
+        db.query(sql, values, (err) => {
+            if (err) return res.status(500).json({ error: 'Database update failed', details: err.message });
+            res.status(200).json({ message: 'Profile Updated Successfully!' });
+        });
+    } catch (error) {
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
+// Binding to 0.0.0.0 so your mobile can connect to 192.168.1.8:5000
+app.listen(5000, '0.0.0.0', () => {
+    console.log('Server is running on http://192.168.1.8:5000');
+});

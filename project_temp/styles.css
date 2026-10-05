@@ -1,0 +1,36 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Lora:ital,wght@0,400;0,700;1,400&family=Noto+Sans+Devanagari:wght@400;700&display=swap");
+
+    @tailwind base;
+    @tailwind components;
+    @tailwind utilities;
+
+    @layer base {
+      :root {
+        --background: 0 0% 100%;
+        --foreground: 265 4% 12.9%;
+        --primary: 353 76% 16%;
+        --secondary: 43 96% 56%;
+        --border: 353 76% 16% / 0.1;
+        --radius: 0.75rem;
+      }
+      
+      body {
+        @apply bg-[#fff6e2]/30 text-primary antialiased;
+      }
+
+      h1, h2, h3, h4 {
+        @apply font-serif;
+      }
+    }
+
+    .glass-card {
+      @apply bg-white/80 backdrop-blur-md border border-white/20 shadow-xl;
+    }
+
+    .btn-primary {
+      @apply bg-primary text-white px-8 py-3 rounded-full font-bold hover:bg-accent transition-all hover:scale-105 active:scale-95;
+    }
+
+    .btn-secondary {
+      @apply bg-secondary text-primary px-8 py-3 rounded-full font-bold hover:bg-white transition-all hover:scale-105 active:scale-95;
+    }
