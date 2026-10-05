@@ -18,7 +18,8 @@ import { initMySqlDb, table } from './mysqlDb.js';
 import apiRoutes from './routes/apiRoutes.js';
 import db from './mysqlDb.js';
 
-dotenv.config();
+// Disabled: Railway injects env vars directly. For local development, use .env file.
+// dotenv.config();
 
 const isProduction = process.env.NODE_ENV === 'production';
 const weakSecretValues = new Set(['dev_secret', 'dev_refresh', 'password123', 'secret', 'changeme']);
