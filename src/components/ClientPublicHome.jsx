@@ -13,7 +13,7 @@ import './ClientPublicHome.css';
 const defaultHomepageContent = {
     eyebrow: 'अधिकृत समाज संकेतस्थळ',
     hero_badge: 'समाज माहिती, कार्यक्रम व ऑनलाईन नोंदणी',
-    notice_text: '॥ श्री हिंगुलांबिका देवी प्रसन्न ॥',
+    notice_text: '',
     registration_note: 'अधिकृत सार्वजनिक माहिती व नोंदणी पोर्टल',
     hero_heading: 'समाज बांधवांसाठी अधिकृत कार्यक्रम माहिती',
     hero_quote: 'संस्कारांची सुंदर गाठ, नव्या आयुष्याची नवी पहाट... एकत्र येऊन सुखद नात्यांची ही वाट यशस्वी करूया.',
@@ -61,24 +61,6 @@ const committeeRoles = [
     ['sachiv_name', 'sachiv_phone', 'sachiv_photo_url', 'सचिव'],
     ['upasachiv_name', 'upasachiv_phone', 'upasachiv_photo_url', 'उपसचिव']
 ];
-
-const featuredTeamNames = [
-    'विनीत / स्वागतोत्सुक व कार्यकारिणी समिती सदस्य',
-    'समस्त भावसार क्षत्रिय महिला मंडळ',
-    'समस्त भावसार क्षत्रिय युवा परिषद',
-    'तांत्रिक सहाय्यता (Technical Helpline)',
-    'नोंदणी सहाय्यता हेल्पलाईन',
-    'स्मरणिका जाहिरात नियोजन समिती'
-];
-
-const teamDescriptions = {
-    'विनीत / स्वागतोत्सुक व कार्यकारिणी समिती सदस्य': 'स्वागत, मार्गदर्शन आणि कार्यक्रम समन्वयासाठी अधिकृत समिती.',
-    'समस्त भावसार क्षत्रिय महिला मंडळ': 'महिला मंडळाशी संबंधित उपक्रम आणि समाज संवादासाठी सहाय्य.',
-    'समस्त भावसार क्षत्रिय युवा परिषद': 'युवा परिषद, स्वयंसेवक आणि कार्यक्रमातील युवा समन्वयासाठी सहाय्य.',
-    'तांत्रिक सहाय्यता (Technical Helpline)': 'वेबसाईट, फॉर्म आणि ऑनलाईन पेमेंटसंबंधी तांत्रिक मदत.',
-    'नोंदणी सहाय्यता हेल्पलाईन': 'नोंदणी फॉर्म भरणे आणि आवश्यक माहिती मिळवण्यासाठी मार्गदर्शन.',
-    'स्मरणिका जाहिरात नियोजन समिती': 'स्मरणिका, जाहिरात आणि संबंधित नियोजनासाठी अधिकृत संपर्क.'
-};
 
 const teamIcon = (teamName) => {
     if (teamName.includes('महिला')) return HeartHandshake;
@@ -251,14 +233,7 @@ const ClientPublicHome = ({ domainMode = false, setLoggedInUser }) => {
         .filter((item) => item && (item.title || item.name));
     const souvenirRates = listValue(content.souvenir_rates)
         .filter((item) => item && (item.title || item.name || item.label));
-    const orderedTeams = [...teams].sort((first, second) => {
-        const firstIndex = featuredTeamNames.indexOf(first.team_name);
-        const secondIndex = featuredTeamNames.indexOf(second.team_name);
-        if (firstIndex === -1 && secondIndex === -1) return Number(first.team_id) - Number(second.team_id);
-        if (firstIndex === -1) return 1;
-        if (secondIndex === -1) return -1;
-        return firstIndex - secondIndex;
-    });
+    const orderedTeams = [...teams].sort((first, second) => Number(first.team_id) - Number(second.team_id));
     const helpdeskTeams = orderedTeams.filter((team) => team.team_name.includes('तांत्रिक') || team.team_name.includes('नोंदणी'));
     const bannerUrl = assetUrl(activeEvent?.registration_banner_path || activeEvent?.banner_url);
     const dateText = formatDate(activeEvent?.start_date);
@@ -270,7 +245,7 @@ const ClientPublicHome = ({ domainMode = false, setLoggedInUser }) => {
     return (
         <main className="reference-page public-client-home">
             <div className="reference-page__notice">
-                {content.notice_text} <span>|</span> {content.registration_note}
+                {content.notice_text && <>{content.notice_text} <span>|</span> </>}{content.registration_note}
             </div>
 
             <header className="reference-page__header">
@@ -405,7 +380,7 @@ const ClientPublicHome = ({ domainMode = false, setLoggedInUser }) => {
                         const Icon = teamIcon(team.team_name);
                         return <article className="public-client-home__team-card" key={team.team_id}>
                             <div className="public-client-home__team-title"><Icon size={23} /><h3>{team.team_name}</h3></div>
-                            <p className="public-client-home__team-description">{teamDescriptions[team.team_name] || 'या समितीची अधिकृत माहिती आणि संपर्क येथे प्रकाशित केला जाईल.'}</p>
+                            <p className="public-client-home__team-description">{team.description || team.team_description || 'या समितीची अधिकृत माहिती आणि संपर्क येथे प्रकाशित केला जाईल.'}</p>
                             {team.members?.length ? <div className="public-client-home__team-members">{team.members.map((member) => <div className="public-client-home__team-member" key={`${team.team_id}-${member.volunteer_id}`}><div><strong>{member.volunteer_name}</strong><span>{member.role_name || (member.is_team_lead ? 'टीम प्रमुख' : member.is_team_manager ? 'टीम व्यवस्थापक' : 'सहाय्यक सदस्य')}</span>{member.main_profession ? <small>{member.main_profession}</small> : null}</div><ContactLink phone={member.whatsapp_number} /></div>)}</div> : <p className="public-client-home__team-empty">सभासदांची माहिती आयोजकांकडून लवकरच प्रसिद्ध केली जाईल.</p>}
                         </article>;
                     })}
